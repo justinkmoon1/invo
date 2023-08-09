@@ -1,0 +1,2 @@
+1. file: tools\balance_sheet_query.py
+add function that enables scraping of yahoo finance financial columns
