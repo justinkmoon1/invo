@@ -14,7 +14,7 @@ import time #helper libraries
 # file is downloaded from finance.yahoo.com, 1.1.1997-1.1.2017
 # training data = 1.1.1997 - 1.1.2007
 # test data = 1.1.2007 - 1.1.2017
-input_file="models/LSTM_Sample1/data/DIS.csv"
+input_file="models/LSTM_Sample1/data/stock_data_s1_modified.csv"
 
 # convert an array of values into a dataset matrix
 def create_dataset(dataset, look_back=1):
@@ -55,7 +55,7 @@ testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
 # create and fit the LSTM network, optimizer=adam, 25 neurons, dropout 0.1
 model = Sequential()
-model.add(LSTM(25, input_shape=(1, look_back)))
+model.add(LSTM(1000, input_shape=(1, look_back)))
 model.add(Dropout(0.1))
 model.add(Dense(1))
 model.compile(loss='mse', optimizer='adam')
@@ -98,7 +98,7 @@ print(testPredict)
 
 # export prediction and actual prices
 df = pd.DataFrame(data={"prediction": np.around(list(testPredict.reshape(-1)), decimals=2), "test_price": np.around(list(testPrices.reshape(-1)), decimals=2)})
-df.to_csv("lstm_result.csv", sep=';', index=None)
+df.to_csv("models/LSTM_Sample1/data/lstm_result_s1.csv", sep=';', index=None)
 
 # plot the actual price, prediction in test data=red line, actual price=blue line
 plt.plot(testPredictPlot)

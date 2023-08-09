@@ -1,0 +1,1 @@
+original directory of this sample: https://github.com/omerbsezer/LSTM_RNN_Tutorials_with_Demo/tree/master
