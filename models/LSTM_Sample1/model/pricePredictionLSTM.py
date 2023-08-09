@@ -55,7 +55,7 @@ testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
 # create and fit the LSTM network, optimizer=adam, 25 neurons, dropout 0.1
 model = Sequential()
-model.add(LSTM(1000, input_shape=(1, look_back)))
+model.add(LSTM(25, input_shape=(1, look_back)))
 model.add(Dropout(0.1))
 model.add(Dense(1))
 model.compile(loss='mse', optimizer='adam')
