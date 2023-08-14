@@ -1,3 +1,5 @@
+#currently code to fetch trailingPE from yfinance
+
 import pandas as pd
 import yfinance as yf
 
@@ -27,11 +29,9 @@ combined_data = pd.concat(fundamental_data)
 combined_data = combined_data.reset_index()
 del combined_data["level_1"]
 combined_data.columns = ["Ticker", "Attribute", "Recent"]
-trailingPE = combined_data[combined_data["Attribute"] == "Research Development"].reset_index()
+trailingPE = combined_data[combined_data["Attribute"] == "trailingPE"].reset_index()
 del trailingPE["index"]
 
 trailingPE.to_csv("data/processed/stocklist_stat.csv")
-#stock_data = yf.download(stock_list, start='2010-01-01', group_by='Ticker')
-#stock_data.to_csv(new_file_path)
 
 #trailingPE
