@@ -1,44 +1,29 @@
-df = pd.DataFrame()
+import pandas as pd
+import yfinance as yf
+import yahooquery as yq
+df = pd.DataFrame(yf.Ticker('AAPL').get_balance_sheet())
+print(df.columns)
+# data = pd.read_csv("data/raw/FINAL-22-23-Approved-Stock-List-V2_September9.csv")
+# stock_list = data['Ticker'].tolist()[:10]
 
-temp_df = nasdaq_df[nasdaq_df['Market Cap']>100000000]
-for index, row in temp_df.iloc[:20, ].iterrows():
-    ticker_start_time = time.time()
-    symbol = row['Symbol']
-    ticker = yf.Ticker(symbol)
-    raw_info = ticker.info
-    try:
-        if raw_info['quoteType'] == 'EQUITY':  # ETF를 제외한 개별 종목
-            inner_dict = {}
+# attribute_list = ['trailingPE', 'priceToBook', 'revenueGrowth', 'overallRisk']
+# fundamental_data = {}
+# #for a in attribute_list:
+# #    financial_data[a] = {}
+# for ticker in stock_list:
+#     try:
+#         stock = yf.Ticker(ticker)
+#         for a in attribute_list:
+#             stat = stock.financials.transpose()[a][0]
+#             financial_data[a][ticker] = stat
+#         print("Going Well")
+#     except:
+#         print("Wrong Ticker")
+#         continue
 
-            # 기본 정보 추가
-            inner_dict['symbol'] = row['Symbol']
-            inner_dict['name'] = row['Name']
-            inner_dict['country'] = row['Country']
-            inner_dict['origin_sector'] = row['Sector']
-            inner_dict['industry'] = row['Industry']
+# df = pd.DataFrame(financial_data)
+# df.to_csv('data/processed/rnd')
+# print(df)
+# print(financial_data)
 
-            # info 정보 추가
-            for info_column in info_columns_mapper:
-                value = raw_info[info_column]
-                inner_dict[info_columns_mapper[info_column]] = value
 
-            # ticker.financials : 직전 4년 매출관련 데이터 추가
-            financial_dict = ticker.financials.T.to_dict('list')
-            for financial_column in financial_columns_mapper:
-                value_list = list(reversed(financial_dict[financial_column]))
-                inner_dict["list_financial_" + financial_columns_mapper[financial_column]] = value_list
-
-            # ticker.balance_sheet : 직전 4년 재무상태 데이터 추가
-            balance_sheet_dict = ticker.balance_sheet.T.to_dict('list')
-            for balance_sheet_column in balance_sheet_columns_mapper:
-                value_list = list(reversed(balance_sheet_dict[balance_sheet_column]))
-                inner_dict["list_balancesheet_" + balance_sheet_columns_mapper[balance_sheet_column]] = value_list
-
-            # append to df
-            df = df.append(inner_dict, ignore_index=True)
-            
-            # time check
-            print(symbol)
-            print("--- %s seconds ---" % (time.time() - total_start_time))
-    except Exception as e:
-        print(symbol, 'Error:', e)
