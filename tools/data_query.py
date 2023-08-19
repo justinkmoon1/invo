@@ -2,11 +2,39 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 
-def get_stock_list(company_list_path, new_file_path):
-    data = pd.read_csv(company_list_path)
-    stock_list = data['Symbol'].tolist()[:400]
-    stock_data = yf.download(stock_list, start='2010-01-01', group_by='Ticker')
-    stock_data.to_csv(new_file_path)
+class Data:
+    def __init__(self, company_list_path):
+        data = pd.read_csv(company_list_path)
+        self.stock_list = data['Ticker'].tolist()
+        pass
+    
+    def get_historical_data(self, new_file_path):
+        stock_data = yf.download(self.stock_list, start='2010-01-01', group_by='Ticker')
+        stock_data.to_csv(new_file_path)
+    
+    def get_balance_sheet(self, new_file_path):
+        pass
+
+    def merge_data(self, sheet1, sheet2):
+        index = sheet1['Ticker']
+
+    def finanacial_data(self, new_File_path):
+        attribute_list = ['Research And Development']
+        financial_data = {}
+        for a in attribute_list:
+            financial_data[a] = {}
+        for ticker in self.stock_list:
+            try:
+                stock = yf.Ticker(ticker)
+                for a in attribute_list:
+                    stat = stock.financials.transpose()[a][0]
+                    financial_data[a][ticker] = stat
+                print("Going Well")
+            except:
+                print("Wrong Ticker")
+                continue
+        df = pd.DataFrame(financial_data)
+        df.to_csv(new_file_path)
 
 
 
