@@ -1,24 +1,51 @@
-import pandas_datareader.data as web
 import pandas as pd
-import datetime
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import seaborn as sns
 
-import pyfred
+import FinanceDataReader as fdr
 
-start = datetime.datetime(2021, 1, 1)
-end = datetime.datetime.now()
+class Macro():
+    cpi_df = pd.DataFrame()
+    gdp_df = pd.DataFrame()
+    ffr_df = pd.DataFrame()
 
-# PyFRED 라이브러리를 사용하여 FRED 데이터 가져오기
-gdp = pyfred.get_series('GDP', start, end)
-unrate = pyfred.get_series('UNRATE', start, end)
+    def __init__(self, year):
+        self.start = year
 
-# Pandas-datareader 라이브러리를 사용하여 S&P 500 지수 가져오기
-sp500 = web.DataReader('^GSPC', 'yahoo', start, end)['Adj Close']
 
-# 데이터프레임으로 변환
-df = pd.concat([gdp, unrate, sp500], axis=1, sort=False)
+    def get_cpi(self, start):
+        df_cpi = fdr.DataReader('FRED:CPIAUCSL', start = str(start))
+        df_cpi = df_cpi.rename(columns={'CPIAUCSL': 'CPI Index'})
+        return df_cpi
 
-# 컬럼명 변경
-df.columns = ['GDP', 'Unemployment Rate', 'S&P 500']
+    def get_gdp(self, start):
+        df_gdp = fdr.DataReader('FRED:GDP',start=str(start))
+        return df_gdp
 
-# 데이터프레임 출력
-print(df.head())
+    def get_fedfundrate(self, start):
+        df_ffr = fdr.DataReader('FRED:DFF', start = str(start))
+        df_ffr = df_ffr.rename(columns={'DFF' : 'Fed Fund Rate'})
+        return df_ffr
+
+    def convert_m_to_d(self, df):
+        start_date = df.index.min() - pd.DateOffset(day=1)
+        end_date = df.index.max() + pd.DateOffset(day=31)
+        dates = pd.date_range(start_date, end_date, freq='D')
+        dates.name = 'date'
+        dataframe = df.reindex(dates, method = 'ffill')
+        return dataframe
+
+    def get_complete_macro(self):
+        cpi_df = self.get_cpi(self.start)
+        gdp_df = self.get_gdp(self.start)
+        ffr_df = self.get_fedfundrate(self.start)
+        cpi_df = self.convert_m_to_d(cpi_df)
+        gdp_df = self.convert_m_to_d(gdp_df)
+        comp = pd.concat([cpi_df, gdp_df, ffr_df], axis=1)
+        comp = comp.fillna(method='ffill')
+        print(comp)
+        return comp
+    
+
+    
