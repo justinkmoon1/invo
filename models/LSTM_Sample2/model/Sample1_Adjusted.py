@@ -9,6 +9,8 @@ from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from keras.layers.core import Dense, Activation, Dropout
+from Sample1_Adjusted_Model import StockPredictionLSTM
+import torch
 import time #helper libraries
 
 # file is downloaded from finance.yahoo.com, 1.1.1997-1.1.2017
@@ -33,6 +35,7 @@ df = read_csv(input_file, header=None, index_col=None, delimiter=',')
 
 # take close price column[5]
 all_y = df[4].values
+
 dataset=all_y.reshape(-1, 1)
 
 # normalize the dataset
@@ -54,12 +57,14 @@ trainX = np.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
 testX = np.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
 # create and fit the LSTM network, optimizer=adam, 25 neurons, dropout 0.1
-model = Sequential()
-model.add(LSTM(25, input_shape=(1, look_back)))
-model.add(Dropout(0.1))
-model.add(Dense(1))
-model.compile(loss='mse', optimizer='adam')
-model.fit(trainX, trainY, epochs=1000, batch_size=240, verbose=1)
+model = StockPredictionLSTM(look_back)
+# model = Sequential()
+# model.add(LSTM(25, input_shape=(1, look_back)))
+# model.add(Dropout(0.1))
+# model.add(Dense(1))
+# model.compile(loss='mse', optimizer='adam')
+model.train(trainX, trainY, epochs=100, batch_size=240, verbose=1)
+torch.save(model,'models/LSTM_Sample2/res/AAPL.pth')
 
 # make predictions
 trainPredict = model.predict(trainX)
