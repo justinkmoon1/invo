@@ -1,3 +1,3 @@
-Macro Data 40% - GDP, CPI, Interest Rate, US Dollar
+Macro Data 40% - GDP, CPI, Interest Rate, #US Dollar#
 - Only Quarterly?
-Fundamental Data 60% - PE ratio, open, high, low, close, price to book ratio, revenue-growth, overall risk
+Fundamental Data 60% - #PE ratio#, open, high, low, close, #price to book ratio#, #revenue-growth#, #overall risk#
