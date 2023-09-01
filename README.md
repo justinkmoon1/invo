@@ -6,6 +6,6 @@ In the _models_ directory, there are several samples for the LSTM model that we 
 We have also prepared various programs in the _tools_ directory to help in gathering finance data and processing them for analysis.
 
 To install the dependencies necessary for the repository, run
-'''
+```
 pip install -r requirements.txt
-'''
+```
