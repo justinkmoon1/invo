@@ -9,3 +9,5 @@ To install the dependencies necessary for the repository, run
 ```
 pip install -r requirements.txt
 ```
+in the terminal.
+
