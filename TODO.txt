@@ -1,3 +1,4 @@
-1. 데이터 추가적으로 가져와서 train set 완성시키기
+1. 데이터 추가적으로 가져와서 train set 완성시키기 (과거 몇 년 데이터? 미래 얼마 데이터?)
+missing values 처리 - quarterly data 평균 linalg로?
 2. 에러 메트릭 / output 형식 수정해서 Black Litterman Model에 넣을 수 있도록 바꾸기
 3. LSTM 모델 fine-tuning 하기
