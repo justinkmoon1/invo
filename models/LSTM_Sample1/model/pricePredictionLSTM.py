@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
-from keras.layers.core import Dense, Activation, Dropout
+from keras.layers import Dense, Activation, Dropout
 import time #helper libraries
 
 # file is downloaded from finance.yahoo.com, 1.1.1997-1.1.2017
