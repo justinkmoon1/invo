@@ -1,0 +1,2 @@
+market price settings
+change LSTM format for absolute views for return estimate
