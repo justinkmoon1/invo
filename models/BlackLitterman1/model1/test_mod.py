@@ -44,23 +44,24 @@ delta = black_litterman.market_implied_risk_aversion(market_prices)
 print(delta)
 
 plotting.plot_covariance(S, plot_correlation=True);
-plt.show()
+plt.show() #visualization of the covariaence matrix
 
 market_prior = black_litterman.market_implied_prior_returns(mcaps, delta, S)
 print(market_prior)
 
 
 market_prior.plot.barh(figsize=(10, 5));
-plt.show()
+plt.show() #estimated expected returns for different assets
+#replace with LSTM???
 
 # Define your views on assets.
 viewdict = {
-    "AMZN": 0.10,
-    "BAC": 0.30,
+    "AMZN": 0.10, #10% return
+    "BAC": 0.30, 
     "COST": 0.05,
     "DIS": 0.05,
     "DPZ": 0.20,
-    "KO": -0.05,
+    "KO": -0.05, #-5% return
     "MCD": 0.15,
     "MSFT": 0.10,
     "NAT": 0.50,
