@@ -1,2 +1,4 @@
 market price settings
 change LSTM format for absolute views for return estimate
+replacement for s&p500
+confidence levels?
