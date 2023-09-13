@@ -2,3 +2,4 @@
 missing values 처리 - quarterly data 평균 linalg로?
 2. 에러 메트릭 / output 형식 수정해서 Black Litterman Model에 넣을 수 있도록 바꾸기
 3. LSTM 모델 fine-tuning 하기
+4. 블랙 리터만 모델이 한 주식에만 과다하게 투자하지 않도록 만들기
