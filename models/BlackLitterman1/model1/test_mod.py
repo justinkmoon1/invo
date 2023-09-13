@@ -28,7 +28,7 @@ prices = ohlc["Adj Close"]
 print(prices.tail())
 
 # How to decide market price? Download historical data for a market index.
-market_prices = yf.download("SPY", period="max")["Adj Close"]
+market_prices = yf.download("MSCI", period="max")["Adj Close"]
 print(market_prices.head())
 # Get market capitalizations for tickers.
 mcaps = {}
