@@ -8,7 +8,7 @@ from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
-from keras.layers.core import Dense, Activation, Dropout
+#from keras.layers.core import Dense, Activation, Dropout
 from Sample1_Adjusted_Model import StockPredictionLSTM
 import torch
 import time #helper libraries
@@ -43,10 +43,11 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 dataset = scaler.fit_transform(dataset)
 
 # split into train and test sets, 50% test data, 50% training data
-train_size = int(len(dataset) * 0.5)
+train_size = int(len(dataset) * 0.9)
 test_size = len(dataset) - train_size
 train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
 
+print(test)
 # reshape into X=t and Y=t+1, timestep 240
 look_back = 240
 trainX, trainY = create_dataset(train, look_back)
@@ -91,23 +92,36 @@ trainPredictPlot[look_back:len(trainPredict)+look_back, :] = trainPredict
 testPredictPlot = np.empty_like(dataset)
 testPredictPlot[:, :] = np.nan
 testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
+testPredictPlot_ratio = testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :]
+for i in range(1, len(testPredictPlot_ratio)):
+	testPredictPlot_ratio[i] = testPredictPlot_ratio[i] / testPredictPlot_ratio[0]
 
 # plot baseline and predictions
-plt.plot(scaler.inverse_transform(dataset))
-plt.plot(trainPredictPlot)
+#plt.plot(scaler.inverse_transform(dataset))
+#plt.plot(trainPredictPlot)
 print('testPrices:')
 testPrices=scaler.inverse_transform(dataset[test_size+look_back:])
+testPrices_ratio = testPrices
+for i in range(1, len(testPrices)):
+	testPrices_ratio[i] = testPrices_ratio[i] / testPrices[0]
 
 print('testPredictions:')
 print(testPredict)
 
 # export prediction and actual prices
-try:
-	df = pd.DataFrame(data={"prediction": np.around(list(testPredict.reshape(-1)), decimals=2), "test_price": np.around(list(testPrices.reshape(-1)), decimals=2)})
-except:
-	df = pd.DataFrame(data={"prediction": np.around(list(testPredict.reshape(-1)), decimals=2), "test_price": np.around(list(testPrices[:-1].reshape(-1)), decimals=2)})
-df.to_csv("models/LSTM_Sample2/data/lstm_result_s1.csv", sep=';', index=None)
+
+# print(len(list(testPredict.reshape(-1))))
+# print(len(list(testPrices.reshape(-1))))
+# print(list(testPredict.reshape(-1)))
+# print(list(testPrices.reshape(-1))[:len(list(testPredictPlot.reshape(-1)))])
+print(len(testPredictPlot_ratio))
+print(len(testPrices_ratio))
+df = pd.DataFrame(data={"prediction": np.around(list(testPredictPlot_ratio.reshape(-1)), decimals=2), "test_price": np.around(list(testPrices_ratio.reshape(-1))[:len(testPredictPlot_ratio.reshape(-1))], decimals=2)})
+
+#df.to_csv("models/LSTM_Sample2/data/lstm_result_s1.csv", sep=';', index=None)
 
 # plot the actual price, prediction in test data=red line, actual price=blue line
-plt.plot(testPredictPlot)
+#plt.plot(testPredictPlot)
+plt.plot(testPrices_ratio)
+plt.plot(testPredictPlot_ratio)
 plt.show()
