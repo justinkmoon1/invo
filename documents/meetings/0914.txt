@@ -1,0 +1,17 @@
+Prediction Interval : limit 
+reference: https://machinelearningmastery.com/prediction-intervals-for-deep-learning-neural-networks/
+simply makes a lot of models and then uses them to calculate the confidence interval
+reference: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7373837/
+bootstrap method for calculation of confidence interval (paper)
+
+reference: https://www.indeed.com/career-advice/career-development/confidence-level-versus-confidence-interval
+Calculation of the confidence level:
+1. Gather the sample size information
+2. Find half the size of the confidence interval
+3. Multiply by the square root of the sample size
+4. Divide by the sample standard deviation
+
+
+Summary: find confidence interval using bootstrap/brute force -> use them to describe results
+Put the confidence level from the confidence interval into the Black Litterman Model
+

@@ -43,6 +43,7 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 dataset = scaler.fit_transform(dataset)
 
 # split into train and test sets, 50% test data, 50% training data
+#-> 10% test data, 90% training data
 train_size = int(len(dataset) * 0.9)
 test_size = len(dataset) - train_size
 train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
@@ -69,6 +70,7 @@ torch.save(model,'models/LSTM_Sample2/res/AAPL.pth')
 
 # make predictions
 trainPredict = model.predict(trainX)
+print(f"testx: {testX}")
 testPredict = model.predict(testX)
 
 # invert predictions
