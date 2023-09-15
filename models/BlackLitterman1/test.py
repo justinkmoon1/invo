@@ -14,7 +14,7 @@ if not os.path.isdir('data'):
     os.system('git clone https://github.com/robertmartin8/PyPortfolioOpt.git')
     os.chdir('PyPortfolioOpt/cookbook')
 
-#change company
+#stock prices- change company (may not be needed at all after LSTM)
 tickers = ["MSFT", "AMZN", "NAT", "BAC", "DPZ", "DIS", "KO", "MCD", "COST", "SBUX"]
 ohlc = yf.download(tickers, period="max")
 prices = ohlc["Adj Close"]
@@ -80,7 +80,7 @@ np.diag(bl.omega)
 
 #automatic market-implied prior (use LSTM module returns)
 bl = BlackLittermanModel(S, pi="market", market_caps=mcaps, risk_aversion=delta,
-                        absolute_views=viewdict, omega=omega)
+                        absolute_views=viewdict, omega= "idzorek")
 # Posterior estimate of returns
 ret_bl = bl.bl_returns()
 ret_bl
