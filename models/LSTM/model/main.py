@@ -40,6 +40,21 @@ trainPredict = scaler.inverse_transform(testPredict)
 testY = scaler.inverse_transform([testY])
 
 trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:, 0]))
+print('Train Score: %.2f RMSE' % (trainScore))
+
+testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:, 0]))
+print('Test Score: %.2f RMSE' % (testScore))
 
 
+trainPredictPlot = np.empty_like(dataset)
+trainPredictPlot[:, :] = np.nan
+trainPredictPlot[look_back: len(trainPredict) + look_back, :] = trainPredict
 
+testPredictPlot = np.empty_like(dataset)
+testPredictPlot[:, :] = np.nan
+testPredictPlot[len(trainPredict) + look_back*2 + 1:len(dataset) - 1, :] = testPredict
+
+plt.plot(scaler.inverse_transform(dataset))
+plt.plot(trainPredictPlot)
+plt.plot(testPredictPlot)
+plt.show()
