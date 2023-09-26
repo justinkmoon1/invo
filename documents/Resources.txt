@@ -1,0 +1,2 @@
+https://bobrupakroy.medium.com/lstms-for-regression-cc9b6677697f
+Nice LSTM tutorial
