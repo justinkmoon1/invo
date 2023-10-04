@@ -1,7 +1,8 @@
 import yfinance as yf
 import pandas as pd
 
-df = pd.read_excel("data/raw/23-24 Competition Stock List-FINAL.xlsx")
+xlsx = pd.ExcelFile('data/raw/Stock List.xlsx')
+df = pd.read_excel(xlsx, 'Companies')
 tickers_list = df["Ticker"].tolist()
 print(tickers_list)
 evtoebit_dict = {}
@@ -29,6 +30,5 @@ print(evtoebit_dict)
 print(cnt_well, cnt_no)
 df = pd.DataFrame(data=evtoebit_dict, index=[0])
 df = (df.T)
-df.to_excel('data/processed/evtoebit.xlsx')
-ticker = yf.Ticker('AAPL')
-print(ticker.info['enterpriseValue'] / ticker.financials.loc['EBIT'][0])
+df.to_excel('data/processed/evtoebit_final.xlsx')
+print(no_info)
