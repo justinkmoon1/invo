@@ -6,7 +6,7 @@ data = pd.read_excel(xls, 'Companies')
 stock_list = data['Ticker'].tolist()
 print(stock_list)
 WACC_data = {'Ticker': stock_list, 'previousClose': [], 'sharesOutstanding': [], 'LongTermDebt(2022)': [], 'CurrentDebt(2022)': [], 'LongTermDebt(2023)': [], 'CurrentDebt(2023)': [], 'PretaxIncome': [], 'InterestExpense': [], 'TaxProvision':[], 'TotalDebt2023': [], 'TotalDebt2022': []
-            , 'DebtAverage':[], 'InterestExpense/DebtAverage':[],
+            , 'DebtAverage':[], 'InterestExpense/DebtAverage':[], 'riskfreerate':[], 'Beta':[],
             'avgtaxrate':[], 'mktvequity': [], 'E+D': [], 'perE': [], 'perD': [], 'costofequity': [], 'WACC': []}
 cur = 0
 ticker = yf.Ticker('CCL')
@@ -81,36 +81,46 @@ for t in stock_list:
     except:
         WACC_data['E+D'].append('N/A')
     try:
-        WACC_data['perE'].append(WACC_data['DebtAverage'][-1] / WACC_data['E+D'][-1])
-    except:
-        WACC_data['perE'].append('N/A')
-    try:
-        WACC_data['perD'].append(WACC_data['mktvequity'][-1] / WACC_data['E+D'][-1])
+        WACC_data['perD'].append(WACC_data['DebtAverage'][-1] / WACC_data['E+D'][-1])
     except:
         WACC_data['perD'].append('N/A')
+    try:
+        WACC_data['perE'].append(WACC_data['mktvequity'][-1] / WACC_data['E+D'][-1])
+    except:
+        WACC_data['perE'].append('N/A')
 
     try:
-        all = []
-        growth = []
-        df = ticker.get_dividends()
-        for i in range(10):
-            try:
-                if sum(df.loc[str(2013 + i)].values) != 0:
-                    all.append(sum(df.loc[str(2013+i)].values))
-            except:
-                continue
-        for j in range(1, len(all)):
-            growth.append((all[j] - all[j - 1])/all[j-1])
-        avggrowth = sum(growth) / len(growth)
-        predicted = avggrowth * WACC_data['previousClose'][-1]
-        WACC_data['costofequity'].append(predicted)
+        WACC_data['Beta'].append(ticker.get_info()['beta'])
+    except:
+        WACC_data['Beta'].append('N/A')
+    # try:
+    #     all = []
+    #     growth = []
+    #     df = ticker.get_dividends()
+    #     for i in range(10):
+    #         try:
+    #             if sum(df.loc[str(2013 + i)].values) != 0:
+    #                 all.append(sum(df.loc[str(2013+i)].values))
+    #         except:
+    #             continue
+    #     for j in range(1, len(all)):
+    #         growth.append((all[j] - all[j - 1])/all[j-1])
+    #     avggrowth = sum(growth) / len(growth) + 1
+    #     predicted = avggrowth * all[-1]
+    #     WACC_data['costofequity'].append(predicted)
+    # except:
+    #     WACC_data['costofequity'].append('N/A')
+    WACC_data['riskfreerate'].append(0.04795)
+    try:
+        WACC_data['costofequity'].append(WACC_data['riskfreerate'][-1] + WACC_data['Beta'][-1] * 0.06)
     except:
         WACC_data['costofequity'].append('N/A')
-    
+
     try:
         WACC_data['WACC'].append(WACC_data['InterestExpense/DebtAverage'][-1] * WACC_data['perD'][-1] * (1 - WACC_data['avgtaxrate'][-1]) + WACC_data['perE'][-1] * WACC_data['costofequity'][-1])
     except:
         WACC_data['WACC'].append('N/A')
+    
 
 WACC = pd.DataFrame.from_dict(WACC_data)
 WACC.set_index('Ticker')
