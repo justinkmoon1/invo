@@ -1,6 +1,6 @@
 import pandas as pd
 import yfinance as yf
-ticker = yf.Ticker('CAAS')
+ticker = yf.Ticker('AAPL')
 #print(ticker.get_dividends())
 #print(ticker.get_balance_sheet(freq='quarterly')) #LongTermDebt CurrentDebt
 #print(ticker.get_income_stmt()) #PretaxIncome InterestExpense TaxProvision
@@ -15,6 +15,7 @@ ticker = yf.Ticker('CAAS')
 #print(ticker.get_income_stmt().iloc[:, 0].loc['TaxProvision'])
 #print(ticker.get_info()['sharesOutstanding'])
 #print(ticker.get_info()['previousClose'])
+print(ticker.get_info())
 all = []
 growth = []
 df = ticker.get_dividends()
