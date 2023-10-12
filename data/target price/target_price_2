@@ -1,0 +1,42 @@
+import pandas as pd
+import yfinance as yf
+import numpy
+from yahoofinancials import YahooFinancials
+import requests
+from bs4 import BeautifulSoup
+import openpyxl
+from openpyxl import workbook
+from openpyxl import load_workbook
+import pandas as pd
+
+# Get the list of stock ticker symbols.
+tickers = [
+    'CAAS', 'HIBB', 'SWBI', 'URBN', 'VRA', 'BNED', 'BBW', 'LCII', 'MOV', 'TCS',
+    'WH', 'QSR.TO', 'LREN3.SA', 'MGLU3.SA', 'HEROMOTOCO.BO', 'VOW3.DE', 'HSW.L',
+    'LOOK.L', 'OTB.L', 'WTB.L', '000333.SZ', 'ARCB', 'BECN', 'HTLD', 'SKYW',
+    'MIDD', 'ASGN', 'CYD', 'SNA', 'TWI', 'WNC', 'AC', 'CCRO3.SA', 'RAIL3.SA',
+    'DSCV.L', 'EZJ.L', 'SMIN.L', 'RR.L', '600009.SS', 'CJT.TO', 'ACHC', 'GMAB',
+    'GEG', 'HBIO', 'LQDA', 'MYGN', 'VYNT', 'IQV', 'PBH', 'ROG', 'HYPE3.SA',
+    'DRREDDY.BO', 'GRANULES.BO', 'UGP', 'TLW.L', 'SVT', 'FTS', 'NFG', 'SBSP3.SA',
+    'CPFE3.SA', 'EGIEY', 'EQUEY', 'TATAPOWER.BO', 'SSE.L', 'CU.TO', 'MC', 'SEIC',
+    'APAM', 'LAZ', 'OPY', 'BOLSY', 'BBSEY', 'IRBR3.SA', 'PSSA3.SA', 'PEL.BO',
+    'AV.L', 'CLIG.L', 'SDR.L', 'FFH.TO', 'GWO.TO', 'L', 'BPAC11.SA', 'BZLA.BE',
+    'DBSA.BE', 'BREA.BE', 'PFC.BO', 'AXISBANK.BO', 'BAJAJFINSV.BO', 'HDFCBANK.BO',
+    'ICICIBANK.BO', 'KOTAKBANK.BO', 'MFSL.BO', 'RIR.BO', 'SBIN.BO', 'YESBANK.BO',
+    '0939.HK', '2318.HK', 'HSBA.L', 'LLOY.L', 'NWG', 'STAN.L', 'GBCI', 'ONB',
+    '002142.SZ', 'CWB.TO'
+]
+
+# Create a Yahoo Finance object for each stock.
+yf_objs = [yf.Ticker(ticker) for ticker in tickers]
+# Get the mean target price for each stock.
+target_prices = []
+for yf_obj in yf_objs:
+    try:
+        target_prices.append(yf_obj.info['targetMeanPrice'])
+    except KeyError:
+        target_prices.append(0)
+# Print the mean target price for each stock.
+for target_price in target_prices:
+    print(target_price)
+
