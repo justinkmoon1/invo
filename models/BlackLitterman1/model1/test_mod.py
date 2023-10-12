@@ -56,8 +56,8 @@ plt.show() #estimated expected returns for different assets
 
 # Define your views on assets.
 viewdict = {
-    "AMZN": 0.10, #10% return
-    "BAC": 0.30, 
+    "AMZN": 0.50, #10% return
+    "BAC": 0.20, 
     "COST": 0.05,
     "DIS": 0.05,
     "DPZ": 0.20,

@@ -80,7 +80,7 @@ np.diag(bl.omega)
 
 #automatic market-implied prior (use LSTM module returns)
 bl = BlackLittermanModel(S, pi="market", market_caps=mcaps, risk_aversion=delta,
-                        absolute_views=viewdict, omega= "idzorek")
+                        absolute_views=viewdict, omega= "idzorek", view_confidences=confidences)
 # Posterior estimate of returns
 ret_bl = bl.bl_returns()
 ret_bl
