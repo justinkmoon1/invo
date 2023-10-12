@@ -28,7 +28,8 @@ excel_book = load_workbook(RESULT_PATH)
 
 
 def screening(sheet, new_sheet_name):
-    errors = 0
+    errors_A = 0
+    errors_B = 0
     results = {}
     evtoebits_final = {}
     evtoebits_avg = {}
@@ -37,9 +38,10 @@ def screening(sheet, new_sheet_name):
         try:
             evtoebit = evtoebits['EVtoEBIT'].iloc[evtoebits[evtoebits['Ticker'] == sheet.iloc[i]['Ticker']].index]
             if len(evtoebit) == 0:
+                errors_A += 1
                 raise IndexError
             industry = indlist[sheet.iloc[i]['Original']]
-            avgevtoebit = float(evtoebitavg.loc[evtoebitavg['Industry Name'] == industry.values[0]]['EV/EBIT'])
+            avgevtoebit = float(evtoebitavg.loc[evtoebitavg['Industry Name'] == industry.values[0]]['EV/EBIT'].iloc[0])
             if evtoebit.values > avgevtoebit:
                 results[company_name] = 1
                 evtoebits_final[company_name] = evtoebit.values
@@ -49,7 +51,8 @@ def screening(sheet, new_sheet_name):
                 evtoebits_final[company_name] = evtoebit.values
                 evtoebits_avg[company_name] = avgevtoebit
         except:
-            errors += 1
+            errors_A += 1
+            
             results[company_name] = -1
             evtoebits_final[company_name] = "N/A"
             evtoebits_avg[company_name] = "N/A"
@@ -70,7 +73,7 @@ def screening(sheet, new_sheet_name):
     final3 = pd.concat([final2, evtoebits_avg_df['EV/EBIT AVG']], axis=1)
     with pd.ExcelWriter(RESULT_PATH, engine = 'openpyxl', mode='a') as writer:
         final3.to_excel(writer, sheet_name = new_sheet_name)
-    print(errors)
+    print(errors_A, new_sheet_name)
 
 
 #Call Functions
