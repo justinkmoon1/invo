@@ -20,7 +20,7 @@ if not os.path.isdir('data'):
     os.chdir('PyPortfolioOpt/cookbook')
 
 # Stock tickers - change these as needed.
-tickers = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "LAZ", "BBSEY"]
+tickers = ["MSFT", "AMZN", "NAT", "BAC", "DPZ", "DIS", "KO", "MCD", "COST", "SBUX"]
 
 # Download historical stock prices.
 ohlc = yf.download(tickers, period="max")
@@ -56,23 +56,20 @@ plt.show() #estimated expected returns for different assets
 
 # Define your views on assets.
 viewdict = {
-    "GM": 0.06,
-    "HMC": -0.01,
-    "AAL": 0.34,
-    "PCAR": 0.02,
-    "CYD": 0.38,
-    "DAL": 0.25,
-    "GMAB": 0.16,
-    "GILD": 0.04,
-    "SEIC": 0.02,
-    "APAM": 0.07,
-    "BEN": 0.22,
-    "LAZ": 0.15,
-    "BBSEY": 0.21
+    "AMZN": 0.50, #10% return
+    "BAC": 0.20, 
+    "COST": 0.05,
+    "DIS": 0.05,
+    "DPZ": 0.20,
+    "KO": -0.05, #-5% return
+    "MCD": 0.15,
+    "MSFT": 0.10,
+    "NAT": 0.50,
+    "SBUX": 0.10
 }
 bl = BlackLittermanModel(S, pi=market_prior, absolute_views=viewdict)
 # Define view confidences as proportions (between 0 and 1).
-confidences = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+confidences = [0.6, 0.4, 0.2, 0.5, 0.7, 0.7, 0.7, 0.5, 0.1, 0.4]
 
 # Create the Black-Litterman model with views and confidences.
 bl = BlackLittermanModel(S, pi=market_prior, absolute_views=viewdict, omega="idzorek", view_confidences=confidences)
@@ -119,7 +116,7 @@ omega = np.diag(variances)
 
 # Automatic market-implied prior (use LSTM module returns).
 bl = BlackLittermanModel(S, pi="market", market_caps=mcaps, risk_aversion=delta,
-                        absolute_views=viewdict, omega=omega)
+                        absolute_views=viewdict, omega= "idzorek", view_confidences=confidences)
 
 # Posterior estimate of returns.
 ret_bl = bl.bl_returns()
@@ -149,7 +146,7 @@ plt.show()
 # Perform discrete allocation based on the optimized weights.
 from pypfopt import DiscreteAllocation
 
-da = DiscreteAllocation(weights, prices.iloc[-1], total_portfolio_value=20000)
+da = DiscreteAllocation(weights, prices.iloc[-1], total_portfolio_value=60000)
 alloc, leftover = da.lp_portfolio()
 print(f"Leftover: ${leftover:.2f}")
 print(alloc)
