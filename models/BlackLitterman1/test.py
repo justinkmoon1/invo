@@ -108,4 +108,4 @@ from pypfopt import DiscreteAllocation
 da = DiscreteAllocation(weights, prices.iloc[-1], total_portfolio_value=20000)
 alloc, leftover = da.lp_portfolio()
 print(f"Leftover: ${leftover:.2f}")
-alloc
+print(alloc)

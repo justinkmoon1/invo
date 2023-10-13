@@ -1,78 +1,41 @@
-#LSTM with window method
-import numpy
-import matplotlib.pyplot as plt
-from pandas import read_csv
-import math
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
-import torch
-DATA_PATH = 'models/LSTM/data/test_data.csv'
-#convert an array of values into a dataset matrix
-def create_dataset(dataset, look_back=1):
-    dataX, dataY = [], []
-    for i in range(len(dataset)-look_back-1):
-        a = dataset[i:(i+look_back), 0]
-        dataX.append(a)
-        dataY.append(dataset[i + look_back, 0])
-    return numpy.array(dataX), numpy.array(dataY)
-#fix random seed for reproducibility
-#numpy.random.seed(7)
-for i in range(10):
+import yfinance as yf
+import pandas as pd
+from final_data_query import get_data
+from predict import inference
+from training import training
 
-    #load the dataset
-    dataframe = read_csv(DATA_PATH, usecols=[1], engine='python')
-    dataset = dataframe.values
-    dataset = dataset.astype('float32')
-    #normalize the dataset
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    dataset = scaler.fit_transform(dataset)
-    #split into train and test sets
-    train_size = int(len(dataset) * 0.9)
-    test_size = len(dataset) - train_size
-    train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
-    '''*************************************'''
-    #reshape into X=t and Y=t+1
-    look_back = 90 #window-method (t-2,t-1,t,y)
-    trainX, trainY = create_dataset(train, look_back)
-    testX, testY = create_dataset(test, look_back)
-    #reshape input to be [samples, time steps, features]
-    trainX = numpy.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
-    testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
-    '''**************************************'''
-    #create and fit the LSTM network
-    model = Sequential()
-    model.add(LSTM(17, input_shape=(1, look_back)))
-    model.add(Dense(1))
-    model.compile(loss='mean_squared_error', optimizer='adam',metrics=["accuracy"])
-    model.fit(trainX, trainY, epochs=10, batch_size=28, verbose=1)
-    #make predictions
-    trainPredict = model.predict(trainX)
-    testPredict = model.predict(testX)
-    #invert predictions
-    trainPredict = scaler.inverse_transform(trainPredict)
-    trainY = scaler.inverse_transform([trainY])
-    testPredict = scaler.inverse_transform(testPredict)
-    testY = scaler.inverse_transform([testY])
-    #calculate root mean squared error
-    trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:,0]))
-    print('Train Score: %.2f RMSE' % (trainScore))
-    testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:,0]))
-    print('Test Score: %.2f RMSE' % (testScore))
-    torch.save(model, f"models/LSTM/res/AAPL{i}.pth")
-    # #-----------------Visualize----------------
-    # #shift train predictions for plotting
-    # trainPredictPlot = numpy.empty_like(dataset)
-    # trainPredictPlot[:, :] = numpy.nan
-    # trainPredictPlot[look_back:len(trainPredict)+look_back, :] = trainPredict
-    # #shift test predictions for plotting
-    # testPredictPlot = numpy.empty_like(dataset)
-    # testPredictPlot[:, :] = numpy.nan
-    # testPredictPlot[len(trainPredict)+(look_back*2)+1:len(dataset)-1, :] = testPredict
-    # # plot baseline and predictions
-    # plt.plot(scaler.inverse_transform(dataset))
-    # plt.plot(trainPredictPlot)
-    # plt.plot(testPredictPlot)
-    # plt.show()
+df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
+lst = df["Ticker"].tolist()
+wrong_tickers = []
+
+cur = 0
+for l in lst:
+    try:
+        total_results = {"Ticker": [], "RMSE_Test": [], "RMSE_Train": [], "Prediction": []}
+        print(l)
+        cur += 1
+        print(wrong_tickers)
+        print(cur)
+        #ticker = yf.Ticker(l)
+        get_data(l)
+        training_dict = training(l)
+        for t in training_dict["Ticker"]:
+            total_results["Ticker"].append(t)
+        for tr in training_dict["RMSE_Train"]:
+            total_results["RMSE_Train"].append(tr)
+        for te in training_dict["RMSE_Test"]:
+            total_results["RMSE_Test"].append(te)
+        prediction_dict= inference(l)
+        for pr in prediction_dict["Prediction"]:
+            total_results["Prediction"].append(pr)
+
+        df = pd.DataFrame.from_dict(total_results)
+        df.to_excel(f"models/LSTM/data/result_quarter/{l}_results.xlsx")
+    except:
+        wrong_tickers.append(l)
+
+
+#df = pd.DataFrame.from_dict(total_results)
+
+print(wrong_tickers)
+        #find_CI(ticker)

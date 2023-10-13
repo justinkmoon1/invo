@@ -4,35 +4,45 @@ from pandas import read_csv
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.optimizers import Adam
+import numpy as np
+import pandas as pd
+import yfinance as yf
 # load dataset
-DATA_PATH = ""
-dataframe = read_csv(DATA_PATH)
-values = dataframe.values
-# split into input and output values
-X, y = values[:, :-1], values[:,-1]
-# split into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.67, random_state=1)
-# scale input data
-scaler = MinMaxScaler()
-scaler.fit(X_train)
-X_train = scaler.transform(X_train)
-X_test = scaler.transform(X_test)
-# define neural network model
-features = X_train.shape[1]
-model = Sequential()
-model.add(Dense(20, kernel_initializer='he_normal', activation='relu', input_dim=features))
-model.add(Dense(5, kernel_initializer='he_normal', activation='relu'))
-model.add(Dense(1))
-# compile the model and specify loss and optimizer
-opt = Adam(learning_rate=0.01, beta_1=0.85, beta_2=0.999)
-model.compile(optimizer=opt, loss='mse')
-# fit the model on the training dataset
-model.fit(X_train, y_train, verbose=2, epochs=300, batch_size=16)
-# make predictions on the test set
-yhat = model.predict(X_test, verbose=0)
-# calculate the average error in the predictions
-mae = mean_absolute_error(y_test, yhat)
-print('MAE: %.3f' % mae)
+df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
+lst = df["Ticker"].tolist()
+wrong_tickers = []
+final_dict = {"Ticker": [], "Lower": [], "Predicted" : [], "Upper": [], "RMSE_train": [], "RMSE_test": [], "Increase": []}
+
+def find_CI (ticker):
+    try:
+        t = yf.Ticker(ticker)
+        df = pd.read_excel(f"models/LSTM/data/result_quarter/{ticker}_results.xlsx")
+        RMSE_tr = df["RMSE_Train"]
+        RMSE_te = df["RMSE_Test"]
+        RMSE_tr = np.asarray(RMSE_tr)
+        RMSE_te = np.asarray(RMSE_te)
+        results = df["Prediction"]
+        summed_lst = []
+        for v in results.values:
+            num = float(v[1:-1])
+            summed_lst.append(num)
+
+        summed_lst = np.asarray(summed_lst)
+        interval = 1.96 * summed_lst.std()
+        lower, upper = summed_lst.mean() - interval, summed_lst.mean() + interval
+        final_dict["Ticker"].append(ticker)
+        final_dict["Lower"].append(lower)
+        final_dict["Predicted"].append(summed_lst.mean())
+        final_dict["Upper"].append(upper)
+        final_dict["RMSE_train"].append(RMSE_tr.mean())
+        final_dict["RMSE_test"].append(RMSE_te.mean())
+        final_dict["Increase"].append((summed_lst.mean() - t.get_info()["previousClose"]) / t.get_info()["previousClose"])
+    except:
+        wrong_tickers.append(ticker)
+
+
+for l in lst:
+    find_CI(l)
+
+dataframe = pd.DataFrame.from_dict(final_dict)
+dataframe.to_excel("models/LSTM/data//final/final_quarter.xlsx")
