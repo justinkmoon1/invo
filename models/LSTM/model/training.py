@@ -19,10 +19,10 @@ def training(ticker):
     #convert an array of values into a dataset matrix
     def create_dataset(dataset, look_back=7):
         dataX, dataY = [], []
-        for i in range(len(dataset)-look_back-90):
+        for i in range(len(dataset)-look_back-1):
             a = dataset[i:(i+look_back), 0]
             dataX.append(a)
-            dataY.append(dataset[i + look_back + 90, 0])
+            dataY.append(dataset[i + look_back + 1, 0])
         return numpy.array(dataX), numpy.array(dataY)
     #fix random seed for reproducibility
     #numpy.random.seed(7)
@@ -48,6 +48,7 @@ def training(ticker):
         #reshape input to be [samples, time steps, features]
         trainX = numpy.reshape(trainX, (trainX.shape[0], 1, trainX.shape[1]))
         testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
+        print(testX)
         '''**************************************'''
         #create and fit the LSTM network
         model = StockPredictionLSTM(90)
@@ -70,10 +71,10 @@ def training(ticker):
         result['RMSE_Test'].append(testScore)
         result['RMSE_Train'].append(trainScore)
         try:
-            os.mkdir(f"models/LSTM/res_quarter/{str(ticker)}")
+            os.mkdir(f"models/LSTM/res_daily/{str(ticker)}")
         except:
             pass
-        torch.save(model, f"models/LSTM/res_quarter/{str(ticker)}/{str(ticker)}{i}.pth")
+        torch.save(model, f"models/LSTM/res_daily/{str(ticker)}/{str(ticker)}{i}.pth")
     return result
 
 

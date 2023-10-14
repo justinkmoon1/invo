@@ -23,7 +23,7 @@ if not os.path.isdir('data'):
     os.chdir('PyPortfolioOpt/cookbook')
 
 # Stock tickers - change these as needed.
-tickers = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "LAZ", "BBSEY"]
+tickers = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "BBSEY"]
 
 # Download historical stock prices.
 ohlc = yf.download(tickers, period="max")
@@ -58,7 +58,7 @@ market_prior.plot.barh(figsize=(10, 5));
 plt.savefig(cur_dir + "/" + "market_prior.png")
 #plt.show() #estimated expected returns for different assets
 #replace with LSTM???
-
+df = pd.read_excel(f"models/LSTM/data/predictions/{datetime.datetime}.xlsx")
 # Define your views on assets.
 viewdict = {
     "GM": 0.06,

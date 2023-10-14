@@ -9,14 +9,14 @@ import pandas as pd
 import yfinance as yf
 # load dataset
 df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
-lst = df["Ticker"].tolist()
+lst = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "LAZ", "BBSEY"]
 wrong_tickers = []
 final_dict = {"Ticker": [], "Lower": [], "Predicted" : [], "Upper": [], "RMSE_train": [], "RMSE_test": [], "Increase": []}
 
 def find_CI (ticker):
     try:
         t = yf.Ticker(ticker)
-        df = pd.read_excel(f"models/LSTM/data/result_quarter/{ticker}_results.xlsx")
+        df = pd.read_excel(f"models/LSTM/data/result_daily/{ticker}_results.xlsx")
         RMSE_tr = df["RMSE_Train"]
         RMSE_te = df["RMSE_Test"]
         RMSE_tr = np.asarray(RMSE_tr)
@@ -28,7 +28,7 @@ def find_CI (ticker):
             summed_lst.append(num)
 
         summed_lst = np.asarray(summed_lst)
-        interval = 1.96 * summed_lst.std()
+        interval = RMSE_te
         lower, upper = summed_lst.mean() - interval, summed_lst.mean() + interval
         final_dict["Ticker"].append(ticker)
         final_dict["Lower"].append(lower)
@@ -45,4 +45,4 @@ for l in lst:
     find_CI(l)
 
 dataframe = pd.DataFrame.from_dict(final_dict)
-dataframe.to_excel("models/LSTM/data//final/final_quarter.xlsx")
+dataframe.to_excel("models/LSTM/data//final/final_daily.xlsx")

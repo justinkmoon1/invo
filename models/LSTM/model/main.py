@@ -4,8 +4,8 @@ from final_data_query import get_data
 from predict import inference
 from training import training
 
-df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
-lst = df["Ticker"].tolist()
+#df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
+#lst = df["Ticker"].tolist()
 lst = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "LAZ", "BBSEY"]
 wrong_tickers = []
 
@@ -18,7 +18,7 @@ for l in lst:
         print(wrong_tickers)
         print(cur)
         #ticker = yf.Ticker(l)
-        get_data(l)
+        #get_data(l)
         training_dict = training(l)
         for t in training_dict["Ticker"]:
             total_results["Ticker"].append(t)
@@ -29,10 +29,12 @@ for l in lst:
         prediction_dict= inference(l)
         for pr in prediction_dict["Prediction"]:
             total_results["Prediction"].append(pr)
-
+        print("Check A")
         df = pd.DataFrame.from_dict(total_results)
-        df.to_excel(f"models/LSTM/data/result_quarter/{l}_results.xlsx")
+        df.to_excel(f"models/LSTM/data/result_daily/{l}_results.xlsx")
+        print("Check B")
     except:
+        raise ValueError
         wrong_tickers.append(l)
 
 
