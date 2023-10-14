@@ -29,7 +29,7 @@ def create_dataset(dataset, look_back=7):
 
 def inference(ticker, t):
     result = {"Ticker":[], "Prediction": []}
-    DATA_PATH = f'models/LSTM/data/training/{ticker}.csv'
+    DATA_PATH = f'models/LSTM/data/daily_training/{ticker}.csv'
 #convert an array of values into a dataset matrix
 #load the dataset
     dataframe = pd.read_csv(DATA_PATH, usecols=[4], engine='python')

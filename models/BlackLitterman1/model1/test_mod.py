@@ -13,9 +13,18 @@ import datetime
 import os
 
 
-cur_dir = "models/BlackLitterman1/res/" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+cur_dir = "models/BlackLitterman1/res/" + datetime.datetime.now().strftime('%Y-%m-%d')
 
-os.mkdir(cur_dir)
+try:
+    os.mkdir(cur_dir)
+except:
+    pass
+
+
+t0 = "daily"
+t1 = "weekly"
+t2 = "quarter"
+t = t2
 
 # Check if 'data' directory exists, and clone the data if not.
 if not os.path.isdir('data'):
@@ -35,9 +44,9 @@ market_prices = yf.download("MSCI", period="max")["Adj Close"]
 print(market_prices.head())
 # Get market capitalizations for tickers.
 mcaps = {}
-for t in tickers:
-    stock = yf.Ticker(t)
-    mcaps[t] = stock.info["marketCap"]
+for a in tickers:
+    stock = yf.Ticker(a)
+    mcaps[a] = stock.info["marketCap"]
 print(mcaps)
 
 print(pypfopt.__version__)
@@ -47,7 +56,7 @@ delta = black_litterman.market_implied_risk_aversion(market_prices)
 print(delta)
 
 plotting.plot_covariance(S, plot_correlation=True);
-plt.savefig(cur_dir + "/" + "covariance.png")
+plt.savefig(cur_dir + "/" + t + "covariance.png")
 #plt.show() #visualization of the covariaence matrix
 
 market_prior = black_litterman.market_implied_prior_returns(mcaps, delta, S)
@@ -55,29 +64,31 @@ print(market_prior)
 
 
 market_prior.plot.barh(figsize=(10, 5));
-plt.savefig(cur_dir + "/" + "market_prior.png")
+plt.savefig(cur_dir + "/" + t + "market_prior.png")
 #plt.show() #estimated expected returns for different assets
 #replace with LSTM???
-df = pd.read_excel(f"models/LSTM/data/predictions/{datetime.datetime}.xlsx")
+df = pd.read_excel(f"models/LSTM/data/predictions/{datetime.datetime.now().strftime('%Y-%m-%d')}.xlsx")
+df = df.set_index("Ticker")
 # Define your views on assets.
+
 viewdict = {
-    "GM": 0.06,
-    "HMC": -0.01,
-    "AAL": 0.34,
-    "PCAR": 0.02,
-    "CYD": 0.38,
-    "DAL": 0.25,
-    "GMAB": 0.16,
-    "GILD": 0.04,
-    "SEIC": 0.02,
-    "APAM": 0.07,
-    "BEN": 0.22,
-    "LAZ": 0.15,
-    "BBSEY": 0.21
+    "GM": df[f"{t}_increase"].loc["GM"],
+    "HMC": df[f"{t}_increase"].loc["HMC"],
+    "AAL": df[f"{t}_increase"].loc["AAL"],
+    "PCAR": df[f"{t}_increase"].loc["PCAR"],
+    "CYD": df[f"{t}_increase"].loc["CYD"],
+    "DAL": df[f"{t}_increase"].loc["DAL"],
+    "GMAB": df[f"{t}_increase"].loc["GMAB"],
+    "GILD": df[f"{t}_increase"].loc["GILD"],
+    "SEIC": df[f"{t}_increase"].loc["SEIC"],
+    "APAM": df[f"{t}_increase"].loc["APAM"],
+    "BEN": df[f"{t}_increase"].loc["BEN"],
+    "BBSEY": df[f"{t}_increase"].loc["BBSEY"]
 }
+print(f"viewdict: {viewdict}")
 bl = BlackLittermanModel(S, pi=market_prior, absolute_views=viewdict)
 # Define view confidences as proportions (between 0 and 1).
-confidences = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+confidences = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
 # Create the Black-Litterman model with views and confidences.
 bl = BlackLittermanModel(S, pi=market_prior, absolute_views=viewdict, omega="idzorek", view_confidences=confidences)
@@ -91,14 +102,13 @@ ax.set_yticks(np.arange(len(bl.tickers)))
 
 ax.set_xticklabels(bl.tickers)
 ax.set_yticklabels(bl.tickers)
-plt.savefig(cur_dir + "/" + "omega.png")
+plt.savefig(cur_dir + "/" + t + "omega.png")
 #plt.show()
 
 # Extract the diagonal of the omega matrix.
 print(np.diag(bl.omega))
 
 intervals = [
-    (0.05, 0.15),
     (0.05, 0.15),
     (0.05, 0.15),
     (0.05, 0.15),
@@ -137,11 +147,11 @@ rets_df = pd.DataFrame([market_prior, ret_bl, pd.Series(viewdict)],
 print(rets_df)
 rets_df.plot.bar(figsize=(12, 8));
 #plt.show()
-plt.savefig(cur_dir + "/" + "returns.png")
+plt.savefig(cur_dir + "/" + t + "returns.png")
 # Posterior covariance estimate.
 S_bl = bl.bl_cov()
 plotting.plot_covariance(S_bl)
-plt.savefig(cur_dir + "/" + "posterior_covariance.png")
+plt.savefig(cur_dir + "/" + t + "posterior_covariance.png")
 #plt.show()
 
 # Optimize the portfolio using the Black-Litterman expected returns and covariance.
@@ -154,7 +164,7 @@ print(weights)
 # Visualize the portfolio weights as a pie chart.
 pd.Series(weights).plot.pie(figsize=(10, 10));
 #plt.show()
-plt.savefig(cur_dir + "/" + "results.png")
+plt.savefig(cur_dir + "/" + t + "results.png")
 # Perform discrete allocation based on the optimized weights.
 from pypfopt import DiscreteAllocation
 
@@ -162,3 +172,4 @@ da = DiscreteAllocation(weights, prices.iloc[-1], total_portfolio_value=60000)
 alloc, leftover = da.lp_portfolio()
 print(f"Leftover: ${leftover:.2f}")
 print(alloc)
+pd.DataFrame(alloc, index = [0]).to_excel(cur_dir + "/" + t + "_result.xlsx")

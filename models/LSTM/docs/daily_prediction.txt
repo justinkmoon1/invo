@@ -1,0 +1,4 @@
+process for daily prediction
+run daily_training_data
+run daily_prediction
+run bl model 3 times
