@@ -163,3 +163,5 @@ cython_debug/
 classfied.txt
 *.pth
 inv
+*.xlsx
+*.png
