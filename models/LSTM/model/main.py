@@ -6,6 +6,7 @@ from training import training
 
 df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
 lst = df["Ticker"].tolist()
+lst = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "LAZ", "BBSEY"]
 wrong_tickers = []
 
 cur = 0
