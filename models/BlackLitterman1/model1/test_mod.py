@@ -24,7 +24,7 @@ except:
 t0 = "daily"
 t1 = "weekly"
 t2 = "quarter"
-t = t2
+t = t0
 
 # Check if 'data' directory exists, and clone the data if not.
 if not os.path.isdir('data'):

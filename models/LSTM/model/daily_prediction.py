@@ -71,7 +71,6 @@ for l in lst:
     previousClose = ticker.get_info()["previousClose"]
     complete_result["Ticker"].append(l)
     res_daily = inference(l, "daily")
-    print(res_daily)
     complete_result["day_low"].append(res_daily - daily_rmse[l])
     complete_result["day_predict"].append(res_daily)
     complete_result["day_high"].append(res_daily + daily_rmse[l])
