@@ -13,6 +13,7 @@ import datetime
 import os
 
 
+year = 2010
 cur_dir = "models/BlackLitterman1/res/" + datetime.datetime.now().strftime('%Y-%m-%d')
 prefix = datetime.datetime.now().strftime('%Y-%m-%d')
 try:
@@ -32,15 +33,15 @@ if not os.path.isdir('data'):
     os.chdir('PyPortfolioOpt/cookbook')
 
 # Stock tickers - change these as needed.
-tickers = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "BBSEY", "PSX", "SBSP3.SA"]
+tickers = ["AAPL", "MSFT", "AMZN", "NVDA", "GOOGL", "TSLA", "GOOG", "BRK.B", "META", "UNH", "XOM", "LLY", "JPM", "JNJ", "V", "PG", "MA", "AAVGO", "HD", "CVX", "MRK", "ABBV", "COST", "PEP", "KO"]
 
 # Download historical stock prices.
-ohlc = yf.download(tickers, period="max")
+ohlc = yf.download(tickers, start = f"{year-10}-01-01", end = f"{year}-12-31")
 prices = ohlc["Adj Close"]
 print(prices.tail())
 
 # How to decide market price? Download historical data for a market index.
-market_prices = yf.download("MSCI", period="max")["Adj Close"]
+market_prices = yf.download("MSCI", start = f"{year-10}-01-01", end = f"{year}-12-31")["Adj Close"]
 print(market_prices.head())
 # Get market capitalizations for tickers.
 mcaps = {}
@@ -72,25 +73,17 @@ df = df.set_index("Ticker")
 # Define your views on assets.
 
 viewdict = {
-    "GM": df[f"{t}_increase"].loc["GM"],
-    "HMC": df[f"{t}_increase"].loc["HMC"],
-    "AAL": df[f"{t}_increase"].loc["AAL"],
-    "PCAR": df[f"{t}_increase"].loc["PCAR"],
-    "CYD": df[f"{t}_increase"].loc["CYD"],
-    "DAL": df[f"{t}_increase"].loc["DAL"],
-    "GMAB": df[f"{t}_increase"].loc["GMAB"],
-    "GILD": df[f"{t}_increase"].loc["GILD"],
-    "SEIC": df[f"{t}_increase"].loc["SEIC"],
-    "APAM": df[f"{t}_increase"].loc["APAM"],
-    "BEN": df[f"{t}_increase"].loc["BEN"],
-    "BBSEY": df[f"{t}_increase"].loc["BBSEY"],
-    "PSX" : df[f"{t}_increase"].loc["PSX"],
-    "SBSP3.SA": df[f"{t}_increase"].loc["SBSP3.SA"]
+    "KO": df[f"{t}_increase"].loc["KO"],
+    "WFC": df[f"{t}_increase"].loc["WFC"],
+    "AXP": df[f"{t}_increase"].loc["AXP"],
+    "MSFT": df[f"{t}_increase"].loc["MSFT"],
+    "JNJ": df[f"{t}_increase"].loc["JNJ"],
+    "SNY": df[f"{t}_increase"].loc["SNY"],
 }
 print(f"viewdict: {viewdict}")
 bl = BlackLittermanModel(S, pi=market_prior, absolute_views=viewdict)
 # Define view confidences as proportions (between 0 and 1).
-confidences = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
+confidences = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 # Create the Black-Litterman model with views and confidences.
 bl = BlackLittermanModel(S, pi=market_prior, absolute_views=viewdict, omega="idzorek", view_confidences=confidences)
@@ -111,14 +104,6 @@ plt.savefig(cur_dir + "/" + t + "omega.png")
 print(np.diag(bl.omega))
 
 intervals = [
-    (0.05, 0.15),
-    (0.05, 0.15),
-    (0.05, 0.15),
-    (0.05, 0.15),
-    (0.05, 0.15),
-    (0.05, 0.15),
-    (0.05, 0.15),
-    (0.05, 0.15),
     (0.05, 0.15),
     (0.05, 0.15),
     (0.05, 0.15),
@@ -172,7 +157,9 @@ plt.savefig(cur_dir + "/" + t + "results.png")
 # Perform discrete allocation based on the optimized weights.
 from pypfopt import DiscreteAllocation
 
-da = DiscreteAllocation(weights, prices.iloc[-1], total_portfolio_value=60000)
+print(prices.iloc[-1])
+da = DiscreteAllocation(weights, prices.iloc[-1], total_portfolio_value=100000)
+
 alloc, leftover = da.lp_portfolio()
 print(f"Leftover: ${leftover:.2f}")
 print(alloc)

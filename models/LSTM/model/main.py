@@ -6,18 +6,15 @@ from training import training
 
 #df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
 #lst = df["Ticker"].tolist()
-lst = ["GM", "HMC", "AAL", "PCAR", "CYD", "DAL", "GMAB", "GILD", "SEIC", "APAM", "BEN", "LAZ", "BBSEY"]
+lst = ["KO", "WFC", "AXP", "MSFT", "JNJ", "SNY"]
 wrong_tickers = []
 
 cur = 0
 for l in lst:
     try:
-        total_results = {"Ticker": [], "RMSE_Test": [], "RMSE_Train": [], "Prediction": []}
-        print(l)
+        total_results = {"Ticker": [], "RMSE_Test": [], "RMSE_Train": []}
         cur += 1
-        print(wrong_tickers)
-        print(cur)
-        #ticker = yf.Ticker(l)
+        ticker = yf.Ticker(l)
         #get_data(l)
         training_dict = training(l)
         for t in training_dict["Ticker"]:
@@ -26,19 +23,17 @@ for l in lst:
             total_results["RMSE_Train"].append(tr)
         for te in training_dict["RMSE_Test"]:
             total_results["RMSE_Test"].append(te)
-        prediction_dict= inference(l)
-        for pr in prediction_dict["Prediction"]:
-            total_results["Prediction"].append(pr)
-        print("Check A")
+        #prediction_dict= inference(l)
+        #for pr in prediction_dict["Prediction"]:
+        #    total_results["Prediction"].append(pr)
         df = pd.DataFrame.from_dict(total_results)
-        df.to_excel(f"models/LSTM/data/result_daily/{l}_results.xlsx")
-        print("Check B")
+        #df.to_excel(f"models/LSTM/data/result_daily/{l}_results.xlsx")
     except:
         raise ValueError
         wrong_tickers.append(l)
 
 
-#df = pd.DataFrame.from_dict(total_results)
+df = pd.DataFrame.from_dict(total_results)
 
 print(wrong_tickers)
         #find_CI(ticker)

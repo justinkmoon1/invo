@@ -12,21 +12,23 @@ import torch
 from model import StockPredictionLSTM
 import os
 
+year = 2010
+
 def training(ticker):
     result = {'Ticker': [], 'RMSE_Test' : [], 'RMSE_Train' : []}
-    DATA_PATH = f'models/LSTM/data/training/{ticker}.csv'
+    DATA_PATH = f'models/LSTM/data/daily_training/{ticker}.csv'
     # DATA_PATH = f'models/LSTM/data/test_data.csv'
     #convert an array of values into a dataset matrix
-    def create_dataset(dataset, look_back=7):
+    def create_dataset(dataset, look_back=90):
         dataX, dataY = [], []
-        for i in range(len(dataset)-look_back-1):
+        for i in range(len(dataset)-look_back-90):
             a = dataset[i:(i+look_back), 0]
             dataX.append(a)
-            dataY.append(dataset[i + look_back + 1, 0])
+            dataY.append(dataset[i + look_back + 90, 0])
         return numpy.array(dataX), numpy.array(dataY)
     #fix random seed for reproducibility
     #numpy.random.seed(7)
-    for i in range(10):
+    for i in range(1):
         #load the dataset
         dataframe = read_csv(DATA_PATH, usecols=[4], engine='python')
         dataset = dataframe.values
@@ -71,10 +73,16 @@ def training(ticker):
         result['RMSE_Test'].append(testScore)
         result['RMSE_Train'].append(trainScore)
         try:
-            os.mkdir(f"models/LSTM/res_daily/{str(ticker)}")
+            os.mkdir(f"models/LSTM/res_backtest_{year}")
         except:
             pass
-        torch.save(model, f"models/LSTM/res_daily/{str(ticker)}/{str(ticker)}{i}.pth")
+
+        try:
+            os.mkdir(f"models/LSTM/res_backtest_{year}/{str(ticker)}")
+        except:
+            pass
+
+        torch.save(model, f"models/LSTM/res_backtest_{year}/{str(ticker)}/{str(ticker)}.pth")
     return result
 
 

@@ -22,13 +22,12 @@ def create_dataset(dataset, look_back=7):
 
 def inference(ticker):
     result = {"Ticker":[], "Prediction": []}
-    DATA_PATH = f'models/LSTM/data/training/{ticker}.csv'
+    DATA_PATH = f'models/LSTM/data/daily_training/{ticker}.csv'
 #convert an array of values into a dataset matrix
 #load the dataset
     dataframe = read_csv(DATA_PATH, usecols=[4], engine='python')
     dataset = dataframe.values
     dataset = dataset.astype('float32')
-    print(dataset)
 #normalize the dataset
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
@@ -39,7 +38,6 @@ def inference(ticker):
     look_back = 90 #window-method (t-2,t-1,t,y)
     testX, testY = create_dataset(test, look_back)
 #reshape input to be [samples, time steps, features]
-    print(testX)
     testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
 
     for j in range(10):

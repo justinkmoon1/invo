@@ -10,8 +10,8 @@ class Data:
         stock_data = yf.download(self.stock_list, start='2010-01-01', group_by='Ticker')
         stock_data.to_csv(new_file_path)
 
-    def get_one_historical_data(self, ticker):
-        stock_data = yf.download([ticker], start='2010-01-01')
+    def get_one_historical_data(self, ticker, year):
+        stock_data = yf.download([ticker], start=f'{year - 10}-01-01', end = f'{year}-12-31')
         return stock_data[['Open', 'High', 'Low', 'Close', 'Adj Close']]     
 
     

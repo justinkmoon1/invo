@@ -12,11 +12,13 @@ from sklearn.metrics import mean_squared_error
 import torch
 from model import StockPredictionLSTM
 import datetime
+import matplotlib.pyplot as plt
 
 #df = pd.read_excel("models/LSTM/data/raw/Stock List.xlsx")
 #lst = df["Ticker"].tolist()
 
-year = 2010
+figure, axs = plt.subplots(2, 5, tight_layout=True)
+cnt = 0
 
 def create_dataset(dataset, look_back=7):
     dataX, dataY = [], []
@@ -39,37 +41,46 @@ def inference(ticker, t):
     scaler = MinMaxScaler(feature_range=(0, 1))
     dataset = scaler.fit_transform(dataset)
 #split into train and test sets
-    train_size = len(dataset) - 100
+    train_size = len(dataset) - 190
     test_size = len(dataset) - train_size
     train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
     look_back = 90 #window-method (t-2,t-1,t,y)
     testX, testY = create_dataset(test, look_back)
 #reshape input to be [samples, time steps, features]
     testX = numpy.reshape(testX, (testX.shape[0], 1, testX.shape[1]))
-
-    for j in range(1):
+    
+    for j in range(0, 1):
         model = StockPredictionLSTM(90)
-        model = torch.load(f"models/LSTM/res_backtest_{year}/{ticker}/{ticker}.pth")
+        model = torch.load(f"models/LSTM/res_{t}/{ticker}/{ticker}{j}.pth")
         testPredict = model.predict(testX)
         testPredict = scaler.inverse_transform(testPredict)
-        print(testPredict)
-        result["Ticker"].append(ticker)
-        result["Prediction"].append(testPredict[-1])
-    prediction = numpy.asarray(result["Prediction"]).mean()
-    return prediction
+        values = [t[0] for t in testPredict]
+        dates = [x for x in range(1, len(values) + 1)]
+        
+        axs[cnt // 5, cnt % 5].plot(dates, values)
+        axs[cnt // 5, cnt % 5].set_xlabel('Dates After Purchase')
+        axs[cnt // 5, cnt % 5].set_ylabel('Estimated Price ($)')
+        axs[cnt // 5, cnt % 5].set_title(str(ticker))
+        
+        #plt.savefig(f'data/graphs/{ticker}_quarter.png', dpi=300)
+        #fig.clear()
+        #result["Ticker"].append(ticker)
+        #result["Prediction"].append(testPredict[-1])
+    #prediction = numpy.asarray(result["Prediction"]).mean()
+    #return prediction
 
 
 
-lst = lst = ["KO", "WFC", "AXP", "MSFT", "JNJ", "SNY"]
+lst = ["GM", "AAL", "CYD", "DAL", "GMAB", "APAM", "BEN", "BBSEY", "PSX", "SBSP3.SA"]
 daily_rmse = {"AAL": 1.09, "APAM": 2.03, "BBSEY": 0.23, "BEN": 1.18, "CYD": 0.48, "DAL": 2.37, "GILD": 2.61, "GMAB": 2.09, "GM": 2.67, "HMC": 0.81, "LAZ": 1.56, "PCAR": 3.36, "SEIC": 2.33, "PAVE": 1.19, "INDA" : 1.31, "SMH": 8.25, "VGT": 16.18, "PCG": 0.63, "PSX": 5.21, "SBSP3.SA": 2.35}
 weekly_rmse = {"GM": 4.07, "HMC": 1.36, "AAL": 1.67, "PCAR": 4.35, "CYD": 0.78, "DAL": 3.36, "GMAB": 3.3, "GILD": 3.35, "SEIC": 2.89, "APAM": 2.84 , "BEN": 1.72, "BBSEY": 0.37, "PAVE": 1.37, "INDA": 1.95, "SMH": 10.99, "VGT": 22.65, "PCG": 0.69, "PSX": 5.35, "SBSP3.SA": 3.4}
 quarter_rmse = {"GM": 9.6, "HMC": 3.2, "AAL": 4.55, "PCAR": 7.63, "CYD": 1.62, "DAL": 7.09, "GILD": 10.15, "GMAB": 7.02, "SEIC": 5.62, "APAM": 5.12, "BEN": 3.6, "BBSEY": 0.83, "PAVE": 3.16, "INDA": 6.28, "SMH": 52.46, "VGT": 122.44, "PCG": 0.66, "PSX": 5.15, "SBSP3.SA": 3.38}
-complete_results = {"Ticker": [], "day_low": [], "day_predict" : [], "day_high": [], "week_low": [], "week_predict" : [], "week_high": [], "quarter_low": [], "quarter_predict" : [], "quarter_high": [], "daily_increase": [], "weekly_increase": [], "quarter_increase": []}
-complete_result = {"Ticker": [], 'quarter_increase': []}
+complete_result = {"Ticker": [], "day_low": [], "day_predict" : [], "day_high": [], "week_low": [], "week_predict" : [], "week_high": [], "quarter_low": [], "quarter_predict" : [], "quarter_high": [], "daily_increase": [], "weekly_increase": [], "quarter_increase": []}
+
 for l in lst:
     ticker = yf.Ticker(l)
-    previousClose = yf.download([l], start=2011-12-31).iloc[0]['Close']
-    complete_result["Ticker"].append(l)
+    #previousClose = yf.download([l]).iloc[-1]['Close']
+    #complete_result["Ticker"].append(l)
     #res_daily = inference(l, "daily")
     #complete_result["day_low"].append(res_daily - daily_rmse[l])
     #complete_result["day_predict"].append(res_daily)
@@ -82,11 +93,13 @@ for l in lst:
     #complete_result["weekly_increase"].append((res_weekly - previousClose) / previousClose)
 
     res_quarter = inference(l, "quarter")
+    cnt += 1
     #complete_result["quarter_low"].append(res_quarter - quarter_rmse[l])
     #complete_result["quarter_predict"].append(res_quarter)
     #complete_result["quarter_high"].append(res_quarter + quarter_rmse[l])
-    complete_result["quarter_increase"].append((res_quarter - previousClose) / previousClose)
-    print(complete_result)
+    #complete_result["quarter_increase"].append((res_quarter - previousClose) / previousClose)
 
-dataframe = pd.DataFrame.from_dict(complete_result)
-dataframe.to_excel("models/LSTM/data/predictions/" + datetime.datetime.now().strftime('%Y-%m-%d') + ".xlsx")
+#dataframe = pd.DataFrame.from_dict(complete_result)
+#dataframe.to_excel("models/LSTM/data/predictions/" + datetime.datetime.now().strftime('%Y-%m-%d') + ".xlsx")
+
+plt.show()
